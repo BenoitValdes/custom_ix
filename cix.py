@@ -11,7 +11,7 @@ class Item:
     To avoid any conflict with Clarisse item's attributes, all the function had to have a prefix.
     ex: is, get, set, add
 
-    If the module is in debug mode (__builtins__[cix_is_debug]=True) a test function will be
+    If the module is in debug mode (__builtins__["cix_is_debug"]=True) a test function will be
     executed at the end of the init.
     """
 
@@ -25,10 +25,10 @@ class Item:
         # Add all item's attributes as class properties
         for i in range(self._item.get_attribute_count()):
             attr = Attribute(self._item.get_attribute(i))
-            self._attr_list.appemd(attr)
+            self._attr_list.append(attr)
             setattr(self, attr.get_name(), attr)
 
-        if __builtins__.get(cix_is_debug) is True:
+        if __builtins__.get("cix_is_debug") is True:
             self._test_override_functions()
 
     def add_custom_attribute(self, group_name, attr_name, kindof, array_length=1):
@@ -77,7 +77,7 @@ class Item:
         Returns:
             bool: True if the attr is callable and False if it doesn't pass the condition
         """
-        if attr not in self._avoid_ix_item_methods and hasattr(self._item, attr) and callable(self._item.attr):
+        if attr not in self._avoid_ix_item_methods and hasattr(self._item, attr) and callable(getattr(self._item, attr)):
             return True
         return False
         
@@ -131,7 +131,7 @@ class Item:
         result += [attr.get_name() for attr in self._attr_list]
 
         for attr in dir(self._item):
-            if not attr.startswith("_") and self._is_callable(attr) and not in result:
+            if not attr.startswith("_") and self._is_callable(attr) and not attr in result:
                 result.append(attr)
     
         return result
