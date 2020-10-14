@@ -148,19 +148,45 @@ class Item:
 class Attribute:
     def __init__(self, ix_attr):
         self._attr = ix.get_item(str(ix_attr))
-        
-    
-    def get_name(self):
-        return self._attr.get_name()
 
     def get_value(self):
-        pass
+        ix.log_warning("Attribute `{}` of type `{}` and typename `{}`".format(self.get_name(), self.get_type(), self.get_type_name()))
+        result = []
+        function_to_use = None
+        if self.get_type() is 1:
+            function_to_use = self.get_bool
+        elif self.get_type() is 2:
+            function_to_use = self.get_long
+        elif self.get_type() is 3:
+            function_to_use = self.get_double
+        elif self.get_type() is 4:
+            function_to_use = self.get_string
+        elif self.get_type() is 5:
+            function_to_use = self.get_object
+        # elif self.get_type() is 6:
+        #     pass
+        else:
+            ix.log_warning("`cix` module do not handle get_value() on attribute of type `{}`.".format(self.get_type()))
+
+        if function_to_use is not None:
+            if self.get_value_count() > 1:
+                for i in range(self.get_value_count())
+                    self.result.append(function_to_use(i))
+            else:
+                self.result.append(function_to_use())
+
+        if len(result) is 0:
+            return None
+        elif len(result) is 1:
+            return result[0]
+        else:
+            return result
 
     def set_value(self, value):
         pass
     
     def get_type_name(self):
-        pass
+        return self._item.get_type_name(self.get_type())
 
     def __repr__(self):
         """
@@ -170,7 +196,6 @@ class Attribute:
             str: Clarisse attribute path
         """
         return str(self._attr)
-
 
 def get_item(path):
     """Create an Item Class from the path argument.
