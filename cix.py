@@ -170,7 +170,7 @@ class Attribute:
 
         if function_to_use is not None:
             if self.get_value_count() > 1:
-                for i in range(self.get_value_count())
+                for i in range(self.get_value_count()):
                     self.result.append(function_to_use(i))
             else:
                 self.result.append(function_to_use())
