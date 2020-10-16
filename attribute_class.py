@@ -6,7 +6,17 @@ class Attribute(wrapper.Wrapper):
         super(Attribute, self).__init__(ix_node)
         self._node = ix.get_item(str(ix_node))
 
-    def get_value(self):
+    def get_value(self, disabled=False):
+        """
+        Get the value of the current attribute.
+        Not matter the type of attribute.
+
+        Args:
+            disabled (bool, optional): If True return the disabled objects. Defaults to False.
+
+        Returns:
+            bool|int|float|str|list: Return the value of the attribute (if the attribute is an array, return a list)
+        """
         ix.log_warning("Attribute `{}` of type `{}` and typename `{}`".format(self.get_name(), self.get_type(), self.get_type_name()))
         result = []
         function_to_use = None
@@ -38,7 +48,23 @@ class Attribute(wrapper.Wrapper):
             return result
 
     def set_value(self, value):
-        pass
+        """
+        Set the value given as paremeter on the current attribute by using ix.cmds.SetValues().
+
+        Args:
+            value (bool|int|float|str|list): The value we want to set. That can be a string, a int, a float or a list of all of these.
+        """
+        # as ix.cmds.SetValues() needs a list of string to set the value, we've to be sure `value` is a list
+        if not isinstance(value, (list, tuple)):
+            value = [value]
+
+        ix.cmds.SetValues([str(self)], [str(v) for v in value])
     
     def get_type_name(self):
+        """
+        Return the type_name without having to specify the current type.
+
+        Returns:
+            str: THe type name of the current attribute
+        """
         return self._node.get_type_name(self.get_type())
