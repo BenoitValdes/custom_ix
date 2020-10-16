@@ -149,6 +149,9 @@ class Attribute:
     def __init__(self, ix_attr):
         self._attr = ix.get_item(str(ix_attr))
 
+    def get_name(self):
+        return self._attr.get_name()
+
     def get_value(self):
         ix.log_warning("Attribute `{}` of type `{}` and typename `{}`".format(self.get_name(), self.get_type(), self.get_type_name()))
         result = []
