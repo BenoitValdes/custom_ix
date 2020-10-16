@@ -149,8 +149,8 @@ class Attribute:
     def __init__(self, ix_attr):
         self._attr = ix.get_item(str(ix_attr))
 
-    def get_name(self):
-        return self._attr.get_name()
+    # def get_name(self):
+    #     return self._attr.get_name()
 
     def get_value(self):
         ix.log_warning("Attribute `{}` of type `{}` and typename `{}`".format(self.get_name(), self.get_type(), self.get_type_name()))
@@ -190,6 +190,27 @@ class Attribute:
     
     def get_type_name(self):
         return self._item.get_type_name(self.get_type())
+        
+    def __getattr__(self, attr):
+        """
+        That class used to be called when a class attribute is not found.
+        As we wrap a Clarisse attribute, lot of functions works as is and don't need to be written again.
+        Before raise an error, we first check if the function exists in Clarisse's attribute.
+
+        Args:
+            attr (str): The name of the attribute which is not found.
+
+        Raises:
+            AttributeError: If the attribute is not even found in Clarisse attribute or don't pass the condition.
+
+        Returns:
+            [unknown]: The result of the function found in Clarisse's attribute.
+        """
+        if self._is_callable(attr):
+            def wrapper(*args, **kwargs):
+                return getattr(self._attr, attr)(*args, **kwargs)
+            return wrapper
+        raise AttributeError("{} instance has no attribute `{}`".format(self.__class__.__name__, attr))
 
     def __repr__(self):
         """
