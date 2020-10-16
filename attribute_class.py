@@ -6,7 +6,7 @@ class Attribute(wrapper.Wrapper):
         super(Attribute, self).__init__(ix_node)
         self._node = ix.get_item(str(ix_node))
 
-    def get_value(self, disabled=False):
+    def get_values(self, disabled=False):
         """
         Get the value of the current attribute.
         Not matter the type of attribute.
@@ -31,7 +31,7 @@ class Attribute(wrapper.Wrapper):
         elif self.get_type() in [5, 6]:
             function_to_use = self.get_object
         else:
-            ix.log_warning("`cix` module do not handle get_value() on attribute of type `{}`.".format(self.get_type()))
+            ix.log_warning("`cix` module do not handle get_values() on attribute of type `{}`.".format(self.get_type()))
 
         if function_to_use is not None:
             if self.get_value_count() > 1:
@@ -47,18 +47,31 @@ class Attribute(wrapper.Wrapper):
         else:
             return result
 
-    def set_value(self, value):
+    def set_values(self, values):
         """
         Set the value given as paremeter on the current attribute by using ix.cmds.SetValues().
 
         Args:
-            value (bool|int|float|str|list): The value we want to set. That can be a string, a int, a float or a list of all of these.
+            values (bool|int|float|str|list): The value we want to set. That can be a string, a int, a float or a list of all of these.
         """
         # as ix.cmds.SetValues() needs a list of string to set the value, we've to be sure `value` is a list
-        if not isinstance(value, (list, tuple)):
-            value = [value]
+        if not isinstance(values, (list, tuple)):
+            values = [values]
 
-        ix.cmds.SetValues([str(self)], [str(v) for v in value])
+        ix.cmds.SetValues([str(self)], [str(v) for v in values])
+
+    def add_values(self, values):
+        """
+        Use ix.cmds.SetValues() on self with values given as parametter
+
+        Args:
+            values (str|list[str]: [description]
+        """
+        if not isinstance(values, (list, tuple)):
+            values = [values]
+
+        ix.cmds.AddValues([str(self)], [str(v) for v in values])
+
     
     def get_type_name(self):
         """

@@ -38,4 +38,26 @@ def get_item(path):
     return map_dict[kindof](ix_node)
 
 def get_current_context():
+    """override of ix.get_current_context() to return wrapped class
+
+    Returns:
+        Context: the current context your are in Clarisse
+    """
     return get_item(ix.get_current_context())
+
+def reference_file(path, parent_ctx=get_current_context()):
+    """
+    override of ix.reference_file() to return wrapped class
+
+    Args:
+        path (str): path of the file to be referenced
+        parent_ctx (Context|str, optional): The parent context you want to reference your file.
+                                            Defaults to get_current_context().
+
+    Returns:
+        Context: The referenced context
+    """
+    parent_ctx = get_item(parent_ctx)
+    ref_ctx = ix.reference_file(parent_ctx.get_ix_node(), path)
+
+    return get_item(ref_ctx)
