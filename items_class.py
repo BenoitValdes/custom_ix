@@ -26,6 +26,20 @@ class ProjectItem(wrapper.Wrapper):
             self._attr_list.append(attr)
             setattr(self, attr.get_name(), attr)
 
+    def set_disabled(self, state=True):
+        """
+        Disable the node
+
+        Args:
+            state (bool, optional): The state of the node we want at the end. If False, the node will be enabled.
+                                    Defaults to True.
+
+        Returns:
+            ProjectItem: The current node
+        """
+        ix.cmds.DisabledItems([str(self)], state)
+        return self
+
     def get_attribute_list(self):
         """
         Get all the attributes of the current item as a lit
@@ -92,6 +106,7 @@ class Context(ProjectItem):
 
     def get_children(self, ctx_only=False, items_only=False, recursive=False):
         """
+        TODO: add param filter: allow to get the list filtered by classname (could solve time to find a specific item)
         Get the childrens of the context.
 
         Args:
