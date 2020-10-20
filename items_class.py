@@ -37,7 +37,7 @@ class ProjectItem(wrapper.Wrapper):
         Returns:
             ProjectItem: The current node
         """
-        ix.cmds.DisabledItems([str(self)], state)
+        ix.cmds.DisableItems([str(self)], state)
         return self
 
     def get_attribute_list(self):
