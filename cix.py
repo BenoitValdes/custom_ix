@@ -19,8 +19,9 @@ def get_item(path):
     """
     map_dict = {
         "Attribute": items_class.attribute_class.Attribute,
-        "SceneItem": items_class.SceneItem,
         "Context": items_class.Context,
+        "SceneItem": items_class.SceneItem,
+        "ShadingLayer": items_class.ShadingLayer,
     }
     
     ix_node = ix.get_item(str(path))

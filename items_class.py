@@ -137,3 +137,83 @@ class Context(ProjectItem):
                 result.append(cix.get_item(item))
 
         return result
+
+class ShadingLayer(SceneItem):
+    """
+    The Shading Layer is bit unique. Thanks to that class you have easier access to it's content.
+    You can add/get/set row data in friendly way.
+    """
+
+    def __init__(self, ix_node):
+        super(ShadingLayer, self).__init__(ix_node)
+
+        self._default_columns = {"is_active": True, "filter": "", "is_visible": True, "material": "", "clip_map": "", "displacement": "", "shading_variables": ""}
+
+    def add_row(self, is_active=True, filter="", is_visible=True, material="", clip_map="", displacement="", shading_variables=""):
+        """Add a row to the shading layer and set the data if they are specified
+
+        Args:
+            is_active (bool, optional): Set the state of the is_active column. Defaults to True.
+            filter (str, optional): Filter rule that will be used to find the shading group(s) to affect. Defaults to "".
+            is_visible (bool, optional): Set the visibility state of the affected shading group(s). Defaults to True.
+            material (str, optional): The material that will be applied to the affected shading group(s). Defaults to "".
+            clip_map (str, optional): The clip map that will be applied to the affected shading group(s). Defaults to "".
+            displacement (str, optional): The displacement node that will be applied to the affected shading group(s). Defaults to "".
+            shading_variables (str, optional): The shading variables that could be used by the material given as parametter. Defaults to "".
+        """
+        row_number = self.get_module().get_rules().get_count()
+        ix.cmds.AddShadingLayerRule(str(self), row_number, ["filter", "", "is_visible", "1" if is_visible else "0"])
+        self.set_row_values(row_number, is_active, filter, is_visible, material, clip_map, displacement, shading_variables)
+
+    def set_row_values(self, row_number, is_active=True, filter="", is_visible=True, material="", clip_map="", displacement="", shading_variables=""):
+        """
+        Set values on the row specified.
+
+        Args:
+            row_number (int): The row to affect
+            is_active (bool, optional): Set the state of the is_active column. Defaults to True.
+            filter (str, optional): Filter rule that will be used to find the shading group(s) to affect. Defaults to "".
+            is_visible (bool, optional): Set the visibility state of the affected shading group(s). Defaults to True.
+            material (str, optional): The material that will be applied to the affected shading group(s). Defaults to "".
+            clip_map (str, optional): The clip map that will be applied to the affected shading group(s). Defaults to "".
+            displacement (str, optional): The displacement node that will be applied to the affected shading group(s). Defaults to "".
+            shading_variables (str, optional): The shading variables that could be used by the material given as parametter. Defaults to "".
+        """
+
+
+        for k, v in locals().items():
+            if k in self._default_columns and self._default_columns[k] != v:
+                if isinstance(v, bool):
+                    v = "1" if v else "0"
+                if not isinstance(v, list):
+                    v = [v]
+                ix.cmds.SetShadingLayerRulesProperty(str(self), [int(row_number)], str(k), [str(value) for value in v])
+
+    def get_row_values(self, row_number):
+        """
+        Get all the columns data for the row specified as parameter
+
+        Args:
+            row_number (int): The row to affect
+
+        Returns:
+            ShadingLayerRow: A simple OOP object that will allow you to get the column data for this row
+        """
+        result = ShadingLayerRow()
+        for k in self._default_columns:
+            setattr(result, k, self.get_module().get_rule_value(row_number, k))
+        return result
+
+class ShadingLayerRow(object):
+    """
+    Simple Class that represent a Shading Layer row. Created only to give an OOP access to the user.
+    """
+    is_active = None
+    filter = None
+    is_visible = None
+    material = None
+    clip_map = None
+    displacement = None
+    shading_variables = None
+
+    
