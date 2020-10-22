@@ -233,6 +233,9 @@ class ShadingLayerRow(object):
     def get_shading_layer(self):
         return self._sl
 
+    def set_value(self, **kwargs):
+        self.get_shading_layer().set_row_values(self.row_number, **kwargs)
+
     def __repr__(self):
         result = {}
         for attr in ["is_active", "filter", "is_visible", "material", "clip_map", "displacement", "shading_variables"]:
