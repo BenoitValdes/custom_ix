@@ -189,7 +189,15 @@ class ShadingLayer(SceneItem):
                     v = [v]
                 ix.cmds.SetShadingLayerRulesProperty(str(self), [int(row_number)], str(k), [str(value) for value in v])
 
-    def get_row_values(self, row_number):
+    def get_all_rows(self):
+        result = []
+        for i in range(self.get_module().get_rules().get_count()):
+            result.append(self.get_row(i))
+
+        return result
+
+
+    def get_row(self, row_number):
         """
         Get all the columns data for the row specified as parameter
 
@@ -199,7 +207,10 @@ class ShadingLayer(SceneItem):
         Returns:
             ShadingLayerRow: A simple OOP object that will allow you to get the column data for this row
         """
-        result = ShadingLayerRow()
+        if not row_number in range(self.get_module().get_rules().get_count()):
+            ix.log_warning("The row `{}` can't be found in `{}`".format(row_number, self))
+            return None
+        result = ShadingLayerRow(self, row_number)
         for k in self._default_columns:
             setattr(result, k, self.get_module().get_rule_value(row_number, k))
         return result
@@ -208,12 +219,25 @@ class ShadingLayerRow(object):
     """
     Simple Class that represent a Shading Layer row. Created only to give an OOP access to the user.
     """
-    is_active = None
-    filter = None
-    is_visible = None
-    material = None
-    clip_map = None
-    displacement = None
-    shading_variables = None
+    def __init__(self, sl, row_number):
+        self._sl = sl
+        self.row_number = row_number
+        self.is_active = None
+        self.filter = None
+        self.is_visible = None
+        self.material = None
+        self.clip_map = None
+        self.displacement = None
+        self.shading_variables = None
+
+    def get_shading_layer(self):
+        return self._sl
+
+    def __repr__(self):
+        result = {}
+        for attr in ["is_active", "filter", "is_visible", "material", "clip_map", "displacement", "shading_variables"]:
+            result[attr] = getattr(self, attr)
+
+        return str(result)
 
     
