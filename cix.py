@@ -15,7 +15,7 @@ def get_item(path):
         path (str|OfItem): Clarisse Item or it's path as string
 
     Returns:
-        Item: The wrapped item of the give path
+        Wrapper: The wrapped item of the give path
     """
     map_dict = {
         "Attribute": items_class.attribute_class.Attribute,
@@ -38,6 +38,7 @@ def get_item(path):
     # TODO: Check the kindof item it is an return the right Wrapper Class
     return map_dict[kindof](ix_node)
 
+
 def get_current_context():
     """override of ix.get_current_context() to return wrapped class
 
@@ -45,6 +46,7 @@ def get_current_context():
         Context: the current context your are in Clarisse
     """
     return get_item(ix.get_current_context())
+
 
 def reference_file(path, parent_ctx=get_current_context()):
     """
@@ -62,3 +64,45 @@ def reference_file(path, parent_ctx=get_current_context()):
     ref_ctx = ix.reference_file(parent_ctx.get_ix_node(), path)
 
     return get_item(ref_ctx)
+
+def create_item(name, class_name, parent_ctx=get_current_context()):
+    """
+    Create a Clarisse item and return a wrapper Class.
+    You can also create a context through this function by giving the class_name Context.
+    It can help to automate script and don't have to do if/else.
+
+    Args:
+        name (str): Name of the item we want to create
+        class_name (str): Clarisse Class Name of the item
+        parent_ctx (Context|str, optional): The context where the item will be created.
+                                            Defaults to get_current_context().
+
+    Returns:
+        Wrapper: The wrapped created item
+    """
+    if class_name == "Context":
+        return create_context(name, parent_ctx)
+    parent_ctx = get_item(parent_ctx)
+    item = ix.create_object(name, class_name, parent_ctx.get_ix_node())
+    if item:
+        return get_item(item)
+    else:
+        return None
+
+def create_context(name, parent_ctx=get_current_context()):
+    """
+    Create a Clarisse context.
+
+    Args:
+        name (str): Name of the context we want to create
+        parent_ctx (Context|str, optional): The context where the item will be created.
+                                            Defaults to get_current_context().
+
+    Returns:
+        Wrapper: The wrapped created context
+    """
+    item = ix.cmds.CreateContext(name, str(parent_ctx))
+    if item:
+        return get_item(item)
+    else:
+        return None
