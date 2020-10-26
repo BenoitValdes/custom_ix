@@ -71,7 +71,6 @@ class Attribute(wrapper.Wrapper):
             values = [values]
 
         ix.cmds.AddValues([str(self)], [str(v) for v in values])
-
     
     def get_type_name(self):
         """

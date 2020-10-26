@@ -26,6 +26,22 @@ class ProjectItem(wrapper.Wrapper):
             self._attr_list.append(attr)
             setattr(self, attr.get_name(), attr)
 
+    def attribute_exists(self, attr_name):
+        """
+        Check if the attr_name given as parametter is in the list of availlable attributes.
+
+        Args:
+            attr_name (str): The name of the attribute we want to check if it exists
+
+        Returns:
+           bool|Wrapper : Return the attribute if it's found or False if not.
+        """
+        for attr in self.get_attribute_list():
+            if attr.get_name() == attr_name:
+                return attr
+
+        return False
+
     def set_disabled(self, state=True):
         """
         Disable the node
@@ -49,7 +65,6 @@ class ProjectItem(wrapper.Wrapper):
         """
         return self._attr_list        
 
-       
     def __dir__(self):
         """
         Override the dir function to add  Clarisse's item attributes (as we add them dinamicaly to be OOP friendly)
