@@ -26,6 +26,18 @@ class ProjectItem(wrapper.Wrapper):
             self._attr_list.append(attr)
             setattr(self, attr.get_name(), attr)
 
+    def get_context(self):
+        """
+        Return a Wrapped item of the context
+
+        Returns:
+            bool|Context: Return the Wrapped context or None if there is not parent context
+        """
+        ctx = self.get_ix_node().get_context()
+        if not ctx:
+            return None
+        return cix.get_item(ctx)
+
     def attribute_exists(self, attr_name):
         """
         Check if the attr_name given as parametter is in the list of availlable attributes.
