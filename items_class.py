@@ -54,6 +54,9 @@ class ProjectItem(wrapper.Wrapper):
 
         return False
 
+    def get_attribute(self, attr_name):
+        return self.attribute_exists(attr_name)
+    
     def set_disabled(self, state=True):
         """
         Disable the node
