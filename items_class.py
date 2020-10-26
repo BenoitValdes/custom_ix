@@ -105,21 +105,114 @@ class SceneItem(ProjectItem):
     def __init__(self, ix_node):
         super(SceneItem, self).__init__(ix_node)
 
-    def add_custom_attribute(self, group_name, attr_name, kindof, array_length=1):
+    def add_custom_attribute(self, attr_name, kindof, group_name, array_length=1, num_range=None, ui_range=None, texturable=False, animatable=False, shading_var=False, allow_expression=False):
         """
-        Add a custom attribute to the item.
+        Add a custom attribute to the current item.
 
         Args:
-            group_name (str): Group name in the Attribute Editor (created if it doesn't exists)
-            attr_name (str): Name of the attribute
-            kindof (str): Type of attribute (string, filename, double, bool...)
-            array_length (int, optional): For some attribute type (double, long...) you can specify an array to
-                                          represent your attribute. Defaults to 1.
+            attr_name (attr): name of the future attributes
+            kindof (str): Kindof attribute you want to create (long, double, bool, string, rgba...)
+            group_name (str): Name of the group that will live the new attr (Kinematics, visibility...)
+            array_length (int, optional): If the attribute has be be an array type (Like translate or resolution) set the array size here. Defaults to 1.
+            num_range (list[int], optional): Give a min/max range of the attribute. Defaults to None.
+            ui_range (list[int], optional): Give a min/max range of the UI in the attr editor. Defaults to None.
+            texturable (bool, optional): Allow the attr to be texturable. Defaults to False.
+            animatable (bool, optional): Allow the attr to be animatable. Defaults to False.
+            shading_var (bool, optional): Allow the attr to be shading_var. Defaults to False.
+            allow_expression (bool, optional): Allow the attr to be texturable (Due to a clarisse,s bug it's all the time True). Defaults to False.
 
-        Raises:
-            AttributeError: It's not implemented yet so it raise an error because you can't use it.
+        Returns:
+            None|Attribute: If the attribute can't be created for what ever reason it returns None else it return an Attribute instance.
         """
-        raise AttributeError("Need to be implemented")
+        if self.attribute_exists(attr_name):
+            ix.log_warning("An attribute with the same name already exists.")
+            return None
+
+        mapping_name_vhint = {
+            "angle": {"vhint": "VISUAL_HINT_ANGLE", "kindof": 2},
+            "area": {"vhint": "VISUAL_HINT_AREA", "kindof": 2},
+            "bool": {"vhint": "VISUAL_HINT_DEFAULT", "kindof": 0},
+            "color": {"vhint": "VISUAL_HINT_COLOR", "kindof": 2},
+            "curve": {"vhint": "VISUAL_HINT_DEFAULT", "kindof": 7},
+            "distance": {"vhint": "VISUAL_HINT_DISTANCE", "kindof": 2},
+            "double": {"vhint": "VISUAL_HINT_DEFAULT", "kindof": 2},
+            "file": {"vhint": "VISUAL_HINT_DEFAULT", "kindof": 4},
+            "filename_open": {"vhint": "VISUAL_HINT_FILENAME_OPEN", "kindof": 3},
+            "filename_save": {"vhint": "VISUAL_HINT_FILENAME_SAVE", "kindof": 3},
+            "folder": {"vhint": "VISUAL_HINT_FOLDER", "kindof": 3},
+            "frame": {"vhint": "VISUAL_HINT_FRAME", "kindof": 1},
+            "frequency": {"vhint": "VISUAL_HINT_FREQUENCY", "kindof": 2},
+            "gradient": {"vhint": "VISUAL_HINT_GRADIENT", "kindof": 7},
+            "l": {"vhint": "VISUAL_HINT_L", "kindof": 2},
+            "la": {"vhint": "VISUAL_HINT_LA", "kindof": 2},
+            "long": {"vhint": "VISUAL_HINT_DEFAULT", "kindof": 1},
+            "memsize": {"vhint": "VISUAL_HINT_MEMSIZE", "kindof": 2},
+            "multiline": {"vhint": "VISUAL_HINT_MULTILINE", "kindof": 2},
+            "percentage": {"vhint": "VISUAL_HINT_PERCENTAGE", "kindof": 2},
+            "pixel": {"vhint": "VISUAL_HINT_PIXEL", "kindof": 1},
+            "rgb": {"vhint": "VISUAL_HINT_RGB", "kindof": 2},
+            "rgba": {"vhint": "VISUAL_HINT_RGBA", "kindof": 2},
+            "sample": {"vhint": "VISUAL_HINT_SAMPLE", "kindof": 1},
+            "sample_per_pixel": {"vhint": "VISUAL_HINT_SAMPLE_PER_PIXEL", "kindof": 1},
+            "scale": {"vhint": "VISUAL_HINT_SCALE", "kindof": 2},
+            "script": {"vhint": "VISUAL_HINT_SCRIPT", "kindof": 3},
+            "second": {"vhint": "VISUAL_HINT_SECOND", "kindof": 2},
+            "string": {"vhint": "VISUAL_HINT_DEFAULT", "kindof": 3},
+            "subframe": {"vhint": "VISUAL_HINT_SUBFRAME", "kindof": 2},
+            "subpixel": {"vhint": "VISUAL_HINT_SUBPIXEL", "kindof": 2},
+            "subsample": {"vhint": "VISUAL_HINT_SUBSAMPLE", "kindof": 2},
+            "time": {"vhint": "VISUAL_HINT_TIME", "kindof": 2},
+            "watt": {"vhint": "VISUAL_HINT_WATT", "kindof": 2},
+        }
+
+        presets = {
+            "color": {"array_length": 3},            
+            "la": {"array_length": 2},      
+            "rgb": {"array_length": 3},   
+            "rgba": {"array_length": 4},
+        }
+        
+        if not kindof in mapping_name_vhint.keys():
+            ix.log_warning("There is not type `{}`. You can pick one of the following ones:\n{}".format(kindof, mapping_name_vhint))
+
+        if kindof in presets:
+            for var, value in presets[kindof].items():                
+                if var == "array_length":
+                    array_length = value
+
+        container = "CONTAINER_ARRAY" if array_length > 1 else "CONTAINER_SINGLE"
+
+        result_mapping = {
+            "container": container,
+            "vhint": mapping_name_vhint[kindof]["vhint"],
+            "group": group_name,
+            "count": array_length,
+            "num_min": None if not num_range else num_range[0],
+            "num_max": None if not num_range else num_range[1],
+            "ui_min": None if not ui_range else ui_range[0],
+            "ui_max": None if not ui_range else ui_range[1],
+            "texturable": texturable,
+            "animatable": animatable,
+            "shading_var": shading_var,
+            "allow_expression": allow_expression,
+        }
+
+        headers = []
+        values = []
+        for header, value in result_mapping.items():
+            if value:
+                headers.append(header)
+                values.append(str(value))
+
+        ix.cmds.CreateCustomAttribute(  
+            [str(self.get_ix_node())],
+            attr_name,
+            mapping_name_vhint[kindof]["kindof"],
+            headers,
+            values
+        )
+
+        return self.get_attribute(attr_name)
 
 class Context(ProjectItem):
     """
