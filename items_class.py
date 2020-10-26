@@ -110,7 +110,7 @@ class SceneItem(ProjectItem):
         Add a custom attribute to the current item.
 
         Args:
-            attr_name (attr): name of the future attributes
+            attr_name (str): name of the future attributes
             kindof (str): Kindof attribute you want to create (long, double, bool, string, rgba...)
             group_name (str): Name of the group that will live the new attr (Kinematics, visibility...)
             array_length (int, optional): If the attribute has be be an array type (Like translate or resolution) set the array size here. Defaults to 1.
