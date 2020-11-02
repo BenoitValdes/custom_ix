@@ -8,11 +8,12 @@ from ix import *
 import items_class
 reload(items_class)
 
-def get_item(path):
+def get_item(path, silent=False):
     """Create an Item Class from the path argument.
 
     Args:
         path (str|OfItem): Clarisse Item or it's path as string
+        silent (bool): Tf True, test if the item is an item and avoid any log print
 
     Returns:
         Wrapper: The wrapped item of the give path
@@ -23,9 +24,14 @@ def get_item(path):
         "SceneItem": items_class.SceneItem,
         "ShadingLayer": items_class.ShadingLayer,
     }
-    
-    ix_node = ix.get_item(str(path))
-    
+    ix_node = ix.item_exists(str(path))
+    if ix_node is None:
+        if silent is True:
+            return path
+        else:
+            ix.log_warning("`{}` is not a valid Clarisse item and/or can't be found".format(path))
+            return None
+                
     if "get_type" in  dir(ix_node):
         kindof = "Attribute"
     elif ix_node.is_context() is True:

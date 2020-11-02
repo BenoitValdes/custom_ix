@@ -1,4 +1,5 @@
 import ix
+import cix
 
 class Wrapper(object):
     """
@@ -57,6 +58,8 @@ class Wrapper(object):
         """
         That class used to be called when a class attribute is not found.
         As we wrap a Clarisse node, lot of functions works as is and don't need to be written again.
+        Return the cix.get_item() result of the function. If the result is an item, it will be wrapped automatically
+        Else it will return what should be returned.
         Before raise an error, we first check if the function exists in Clarisse's node.
 
         Args:
@@ -70,7 +73,7 @@ class Wrapper(object):
         """
         if self._is_callable(attr):
             def wrapper(*args, **kwargs):
-                return getattr(self._node, attr)(*args, **kwargs)
+                return cix.get_item(getattr(self.get_ix_node(), attr)(*args, **kwargs), silent=True)
             return wrapper
         raise AttributeError("{} instance has no attribute `{}`".format(self.__class__.__name__, attr))
         

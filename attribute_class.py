@@ -60,6 +60,9 @@ class Attribute(wrapper.Wrapper):
 
         ix.cmds.SetValues([str(self)], [str(v) for v in values])
 
+    def set_texture(self, texture_node):
+        ix.cmds.SetTexture([str(self)], str(texture_node))
+
     def add_values(self, values):
         """
         Use ix.cmds.SetValues() on self with values given as parametter

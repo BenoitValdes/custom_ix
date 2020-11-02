@@ -18,44 +18,6 @@ class ProjectItem(wrapper.Wrapper):
 
     def __init__(self, ix_node):
         super(ProjectItem, self).__init__(ix_node)
-        self._attr_list = []
-
-        # Add all item's attributes as class properties
-        for i in range(self._node.get_attribute_count()):
-            attr = attribute_class.Attribute(self._node.get_attribute(i))
-            self._attr_list.append(attr)
-            setattr(self, attr.get_name(), attr)
-
-    def get_context(self):
-        """
-        Return a Wrapped item of the context
-
-        Returns:
-            bool|Context: Return the Wrapped context or None if there is not parent context
-        """
-        ctx = self.get_ix_node().get_context()
-        if not ctx:
-            return None
-        return cix.get_item(ctx)
-
-    def attribute_exists(self, attr_name):
-        """
-        Check if the attr_name given as parametter is in the list of availlable attributes.
-
-        Args:
-            attr_name (str): The name of the attribute we want to check if it exists
-
-        Returns:
-           bool|Wrapper : Return the attribute if it's found or False if not.
-        """
-        for attr in self.get_attribute_list():
-            if attr.get_name() == attr_name:
-                return attr
-
-        return False
-
-    def get_attribute(self, attr_name):
-        return self.attribute_exists(attr_name)
     
     def set_disabled(self, state=True):
         """
@@ -73,12 +35,31 @@ class ProjectItem(wrapper.Wrapper):
 
     def get_attribute_list(self):
         """
-        Get all the attributes of the current item as a lit
+        Get all the attributes of the current item as a list
 
         Returns:
-            list[Attribute]: The list of the attributes (not Clarisse attributes but `cix` ones)
+            list[Attribute]: The list of the ix_node attributes
         """
-        return self._attr_list        
+        return [cix.get_item(self.get_attribute(i)) for i in range(self.get_attribute_count())]
+
+    def __getattr__(self, attr):
+        """
+        Override Wrapper's class __getattr__ method to allow the user to get clarisse node attribute (like translate, resolution...)
+        directly as a class attribute.
+        That allow to have a dynamic way to get an attribute.
+
+        Args:
+            attr (str): The name of the attribute which is not found.
+
+        Returns:
+            [unknown]: Clarisse attribute or Wrapper's return
+        """
+        if hasattr(self.get_ix_node(), "attribute_exists"):
+            result = self.get_ix_node().attribute_exists(attr)
+            if result is not None:
+                return cix.get_item(result, silent=True)
+
+        return super(ProjectItem, self).__getattr__(attr)       
 
     def __dir__(self):
         """
@@ -88,7 +69,7 @@ class ProjectItem(wrapper.Wrapper):
             list[str]: The list of all the attributes availlable of this Class
         """
         result = super(ProjectItem, self).__dir__()
-        result += [attr.get_name() for attr in self._attr_list]
+        result += [attr.get_name() for attr in self.get_attribute_list()]
     
         return result
         
